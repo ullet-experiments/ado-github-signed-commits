@@ -38,7 +38,8 @@ steps:
       # User email and name must be set to be able to commit.
       # Use an email address validated for a GitHub (machine) user account.
       git config user.email "inherently-biased@users.noreply.github.com"
-      git config user.name "$(Build.RequestedFor)"
+      # Use the name on the GitHub public profile
+      git config user.name "IB"
 
       # Debug output.
       git config --list
