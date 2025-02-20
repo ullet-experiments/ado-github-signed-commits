@@ -3,18 +3,17 @@ pr: none
 
 resources:
   repositories:
-    - repository: 'update'
-      type: 'github'
-      name: 'ullet-experiments/ado-github-signed-commits'
-      endpoint: 'ullet'
-      ref: 'refs/heads/main'
-      trigger: none
+  - repository: update
+    type: github
+    name: 'ullet-experiments/ado-github-signed-commits'
+    endpoint: ullet
+    ref: 'refs/heads/main'
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- checkout: 'update'
+- checkout: update
   persistCredentials: true
   # Set a path that is NOT inside the default sources directory ($(Pipeline.Workspace)/s) so that
   # the files to be modified and committed to the repo are kept separate from any source files to be
