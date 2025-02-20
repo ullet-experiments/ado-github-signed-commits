@@ -66,6 +66,7 @@ steps:
 
       # Debug output.
       git status
+      git log --pretty=fuller --show-signature
 
       git push
     pwsh: true
