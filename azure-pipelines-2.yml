@@ -40,6 +40,9 @@ steps:
       git config user.email "inherently-biased@users.noreply.github.com"
       git config user.name "$(Build.RequestedFor)"
 
+      # Debug output.
+      git config
+
       # Pipeline checkout always results in a 'detached HEAD' state.
       # Need to switch to a branch before can commit any files.
       git fetch --all
@@ -49,11 +52,21 @@ steps:
       $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
       $logEntry | Out-File -Append -FilePath log.txt
 
+      # Debug output.
+      Get-Content log.txt
+
       git add log.txt
+
+      # Debug output.
+      git status
 
       # Signed commits are either not required or the a bypass exists for the committer for all
       # rules enforcing signed commits.
       git commit -m "Update log" -m "[skip ci]"
+
+      # Debug output.
+      git status
+
       git push
     pwsh: true
     # Don't use 'Build.Repository.LocalPath' or 'Build.SourcesDirectory' as those variables depend
