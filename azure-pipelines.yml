@@ -14,7 +14,7 @@ steps:
     targetType: 'inline'
     script: |
       Write-Host "RequestedForEmail: $(Build.RequestedForEmail)"
-      Write-Host "RequestedId: $(Build.RequestedId)"
+      Write-Host "RequestedForId: $(Build.RequestedForId)"
       Write-Host "RequestedFor: $(Build.RequestedFor)"
       Write-Host "QueuedById: $(Build.QueuedById)"
       Write-Host "QueuedBy: $(Build.QueuedBy)"
