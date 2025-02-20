@@ -19,7 +19,8 @@ steps:
   # the files to be modified and committed to the repo are kept separate from any source files to be
   # used in a built. (Unless the modified file is part of the source to be built, e.g. modifying
   # a config file to update a version string, and want to commit that change on a successful build).
-  path: '$(Pipeline.Workspace)/update'
+  # Path must be relative to $(Pipeline.Workspace). It can't be a rooted directory.
+  path: 'update'
 
 - task: PowerShell@2
   displayName: Update file in GIT repository
@@ -41,4 +42,4 @@ steps:
     # Don't use 'Build.Repository.LocalPath' or 'Build.SourcesDirectory' as those variables depend
     # on whether multiple repositories have been checked out (e.g. might also 'checkout: self').
     # Set the working directory path to the path used in 'checkout'.
-    workingDirectory: '$(Pipeline.Workspace)/update'
+    workingDirectory: '$(Build.ArtifactStagingDirectory)/update'
