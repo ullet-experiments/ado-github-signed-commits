@@ -18,6 +18,7 @@ steps:
       git config user.name "$(Build.RequestedFor)"
 
       # Workspace is not on a branch by default.
+      git fetch
       git checkout main
 
       $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
