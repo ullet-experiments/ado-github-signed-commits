@@ -1,12 +1,26 @@
 trigger: none
 pr: none
 
+resources:
+  repositories:
+    - repository: 'update'
+      type: 'github'
+      name: 'ullet-experiments/ado-github-signed-commits'
+      endpoint: 'ullet'
+      ref: 'refs/heads/main'
+      trigger: none
+
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- checkout: self
+- checkout: 'update'
   persistCredentials: true
+  # Set a path that is NOT inside the default sources directory ($(Pipeline.Workspace)/s) so that
+  # the files to be modified and committed to the repo are kept separate from any source files to be
+  # used in a built. (Unless the modified file is part of the source to be built, e.g. modifying
+  # a config file to update a version string, and want to commit that change on a successful build).
+  path: '$(Pipeline.Workspace)/update'
 
 - task: PowerShell@2
   displayName: Update file in GIT repository
@@ -17,10 +31,6 @@ steps:
       git config user.email "$(Build.RequestedForEmail)"
       git config user.name "$(Build.RequestedFor)"
 
-      # Workspace is not on a branch by default.
-      git fetch
-      git checkout main
-
       $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
       $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
       $logEntry | Out-File -Append -FilePath log.txt
@@ -29,4 +39,7 @@ steps:
       git commit -m "Update log" -m "[skip ci]"
       git push
     pwsh: true
-    workingDirectory: $(Build.SourcesDirectory)
+    # Don't use 'Build.Repository.LocalPath' or 'Build.SourcesDirectory' as those variables depend
+    # on whether multiple repositories have been checked out (e.g. might also 'checkout: self').
+    # Set the working directory path to the path used in 'checkout'.
+    workingDirectory: '$(Pipeline.Workspace)/update'
