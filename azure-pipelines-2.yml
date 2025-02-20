@@ -41,7 +41,7 @@ steps:
       git config user.name "$(Build.RequestedFor)"
 
       # Debug output.
-      git config
+      git config --list
 
       # Pipeline checkout always results in a 'detached HEAD' state.
       # Need to switch to a branch before can commit any files.
