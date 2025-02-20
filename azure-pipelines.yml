@@ -42,4 +42,4 @@ steps:
     # Don't use 'Build.Repository.LocalPath' or 'Build.SourcesDirectory' as those variables depend
     # on whether multiple repositories have been checked out (e.g. might also 'checkout: self').
     # Set the working directory path to the path used in 'checkout'.
-    workingDirectory: '$(Build.ArtifactStagingDirectory)/update'
+    workingDirectory: '$(Pipeline.Workspace)/update'
