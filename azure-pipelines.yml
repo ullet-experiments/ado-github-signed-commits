@@ -20,4 +20,4 @@ steps:
       git commit -m "Update log" -m "[skip ci]"
       git push
     pwsh: true
-    workingDirectory: $(Build.SourcesDirectory)'
+    workingDirectory: $(Build.SourcesDirectory)
