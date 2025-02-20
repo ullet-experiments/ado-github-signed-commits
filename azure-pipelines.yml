@@ -28,7 +28,11 @@ steps:
     targetType: 'inline'
     script: |
       # User email and name must be set to be able to commit.
-      git config user.email "$(Build.RequestedForEmail)"
+      # Can't use email address in 'Build.RequestedForEmail' because this may be a private email
+      # address (e.g. Joe.Blogs@mywork.com), and the user may have set up their GitHub account to
+      # prevent their private email address from being used in a commit.
+      # Use a generic placeholder email address (preferably a domain you own in a real application)
+      git config user.email "automation@example.com"
       git config user.name "$(Build.RequestedFor)"
 
       # Pipeline checkout always results in a 'detached HEAD' state.
