@@ -13,18 +13,17 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      # Write-Host "RequestedForEmail: $(Build.RequestedForEmail)"
-      # Write-Host "RequestedForId: $(Build.RequestedForId)"
-      # Write-Host "RequestedFor: $(Build.RequestedFor)"
-      # Write-Host "QueuedById: $(Build.QueuedById)"
-      # Write-Host "QueuedBy: $(Build.QueuedBy)"
-      $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
-      $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
-      # Write-Host "timeStamp: $timeStamp"
-      # Write-Host "logEntry: $logEntry"
-      $logEntry | Out-File -Append -FilePath log.txt
+      # User email and name must be set to be able to commit.
       git config user.email "$(Build.RequestedForEmail)"
       git config user.name "$(Build.RequestedFor)"
+
+      # Workspace is not on a branch by default.
+      git checkout main
+
+      $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
+      $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
+      $logEntry | Out-File -Append -FilePath log.txt
+
       git add log.txt
       git commit -m "Update log" -m "[skip ci]"
       git push
