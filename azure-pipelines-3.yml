@@ -1,0 +1,87 @@
+# Commit to git repository with the user name and email address of a specific (machine) user.
+# The user name and email address must be associated with a GitHub account.
+# Independently of the git user configuration, a valid GitHub user or app is required to
+# authenticate with GitHub in order to be able to push the commit.
+# The authentication is via the Azure Pipelines App.
+# The remote branch is assumed to have a ruleset enforcing signed commits.
+# The commit is signed using the key imported from the secure file.
+
+trigger: none
+pr: none
+
+resources:
+  repositories:
+  - repository: update
+    type: github
+    name: 'ullet-experiments/ado-github-signed-commits'
+    endpoint: ullet
+    ref: 'refs/heads/main'
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: update
+  persistCredentials: true
+  # Set a path that is NOT inside the default sources directory ($(Pipeline.Workspace)/s) so that
+  # the files to be modified and committed to the repo are kept separate from any source files to be
+  # used in a built. (Unless the modified file is part of the source to be built, e.g. modifying
+  # a config file to update a version string, and want to commit that change on a successful build).
+  # Path must be relative to $(Pipeline.Workspace). It can't be a rooted directory.
+  path: 'update'
+
+- task: DownloadSecureFile@1
+  name: gitSigningPrivateKey
+  displayName: 'Download GIT signing private key'
+  inputs:
+    secureFile: 'git_signing_private_key.asc'
+
+- task: PowerShell@2
+  displayName: Update file in GIT repository
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Can use -q for quieter output but never -qq (see https://linux.die.net/man/8/apt-get).
+      apt-get install -y gnupg
+
+      gpg --import $(gitSigningPrivateKey.secureFilePath)
+
+      # User email and name must be set to be able to commit.
+      # Use an email address validated for a GitHub (machine) user account.
+      git config user.email "inherently-biased@users.noreply.github.com"
+      # Use the name on the GitHub public profile
+      git config user.name "IB"
+
+      # Debug output.
+      git config --list
+
+      # Pipeline checkout always results in a 'detached HEAD' state.
+      # Need to switch to a branch before can commit any files.
+      git fetch --all
+      git switch main
+
+      $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
+      $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
+      $logEntry | Out-File -Append -FilePath log.txt
+
+      # Debug output.
+      Get-Content log.txt
+
+      git add log.txt
+
+      # Debug output.
+      git status
+
+      # Create a signed commit.
+      git commit -S -m "Update log" -m "[skip ci]"
+
+      # Debug output.
+      git status
+      git log --pretty=fuller --show-signature -1
+
+      git push
+    pwsh: true
+    # Don't use 'Build.Repository.LocalPath' or 'Build.SourcesDirectory' as those variables depend
+    # on whether multiple repositories have been checked out (e.g. might also 'checkout: self').
+    # Set the working directory path to the path used in 'checkout'.
+    workingDirectory: '$(Pipeline.Workspace)/update'
