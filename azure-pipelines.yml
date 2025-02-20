@@ -31,6 +31,11 @@ steps:
       git config user.email "$(Build.RequestedForEmail)"
       git config user.name "$(Build.RequestedFor)"
 
+      # Pipeline checkout always results in a 'detached HEAD' state.
+      # Need to switch to a branch before can commit any files.
+      git fetch --all
+      git switch main
+
       $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
       $logEntry = "${timeStamp}: $(Build.BuildId), $(Build.BuildNumber), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
       $logEntry | Out-File -Append -FilePath log.txt
