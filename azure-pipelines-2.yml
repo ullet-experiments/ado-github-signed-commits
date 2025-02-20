@@ -1,9 +1,10 @@
-# Commit to git repository with an arbitrary user name and email address.
-# The user name and email address are not assumed to be associated with any GitHub account.
-# But a valid GitHub user or app is still required to authenticate with GitHub in order to be able
-# to push the commit.
+# Commit to git repository with the user name and email address of a specific (machine) user.
+# The user name and email address must be associated with a GitHub account.
+# Independently of the git user configuration, a valid GitHub user or app is required to
+# authenticate with GitHub in order to be able to push the commit.
 # The authentication is via the Azure Pipelines App.
-# The remote branch must accept an unsigned commit from the user. I.E. signing is not enforced.
+# The remote branch must accept an unsigned commit from the user. I.E. signing is not enforced or
+# there is a bypass for the user (for the role or team they are a member of).
 
 trigger: none
 pr: none
@@ -35,11 +36,8 @@ steps:
     targetType: 'inline'
     script: |
       # User email and name must be set to be able to commit.
-      # Can't use email address in 'Build.RequestedForEmail' because this may be a private email
-      # address (e.g. Joe.Blogs@mywork.com), and the user may have set up their GitHub account to
-      # prevent their private email address from being used in a commit.
-      # Use a generic placeholder email address (preferably a domain you own in a real application)
-      git config user.email "automation@example.com"
+      # Use an email address validated for a GitHub (machine) user account.
+      git config user.email "inherently-biased@users.noreply.github.com"
       git config user.name "$(Build.RequestedFor)"
 
       # Pipeline checkout always results in a 'detached HEAD' state.
@@ -52,6 +50,9 @@ steps:
       $logEntry | Out-File -Append -FilePath log.txt
 
       git add log.txt
+
+      # Signed commits are either not required or the a bypass exists for the committer for all
+      # rules enforcing signed commits.
       git commit -m "Update log" -m "[skip ci]"
       git push
     pwsh: true
