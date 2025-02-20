@@ -1,0 +1,23 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- task: PowerShell@2
+  displayName: Update file in GIT repository
+  inputs:
+    targetType: 'inline'
+    script: |
+      $timeStamp = Get-Date -AsUTC -Format "yyyy-MM-ddTHH:mm:ssZ"
+      $logEntry = "$timeStamp: $(Build.BuildId), $(Build.Reason), $(Build.SourceBranch), $(Build.SourceVersion)"
+      Out-File -Append -FilePath log.txt $logEntry
+      git add log.txt
+      git commit -m "Update log" -m "[skip ci]"
+      git push
+    pwsh: true
+    workingDirectory: $(Build.SourcesDirectory)'
