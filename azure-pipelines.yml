@@ -13,7 +13,7 @@ resources:
   - repository: update
     type: github
     name: 'ullet-experiments/ado-github-signed-commits'
-    endpoint: ullet
+    endpoint: GitHub
     ref: 'refs/heads/main'
 
 pool:
